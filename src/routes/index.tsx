@@ -1,6 +1,6 @@
-import Home from '@/page/Home'
-import Article from '@/page/Article'
-import NoMatch from '@/page/NoMatch'
+import Home from '@/pages/Home'
+import Article from '@/pages/Article'
+import NoMatch from '@/pages/NoMatch'
 import { ComponentType } from 'react'
 
 export interface routeType {
