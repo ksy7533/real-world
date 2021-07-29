@@ -1,20 +1,25 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import Home from './page/Home'
-import NoMatch from './page/NoMatch'
-
-import './App.css'
+import routes, { routeType } from '@/routes'
+import '@/App.css'
 
 const App: React.FC = () => {
+  const RouteWithSubRoutes = (route: routeType): ReactElement => {
+    return (
+      <Route
+        exact={route.exact}
+        path={route.path}
+        render={(props) => <route.component {...props} routes={route.routes} />}
+      />
+    )
+  }
+
   return (
     <Router>
       <Switch>
-        <Route path='/' exact>
-          <Home />
-        </Route>
-        <Route path='*'>
-          <NoMatch />
-        </Route>
+        {routes.map((route) => {
+          return <RouteWithSubRoutes key={route.path} {...route} />
+        })}
       </Switch>
     </Router>
   )
