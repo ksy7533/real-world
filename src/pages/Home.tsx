@@ -1,8 +1,21 @@
 import React from 'react'
 import SideBar from '@/components/home/SideBar'
 import Pagination from '@/components/common/Pagination'
+import useSWR from 'swr'
+import axios, { AxiosResponse } from 'axios'
 
 const Home: React.FC = () => {
+  const fetcher = async (url: string): Promise<AxiosResponse> =>
+    await axios.get(url).then((res) => res.data)
+
+  const { data, error } = useSWR(
+    'https://conduit.productionready.io/api/articles?offset=0&limit=20',
+    fetcher
+  )
+
+  console.log(data)
+  console.log(error)
+
   return (
     <div className='page-main'>
       <div className='top-visual init'>
