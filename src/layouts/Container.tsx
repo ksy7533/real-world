@@ -4,11 +4,11 @@ import Footer from '@/layouts/Footer'
 
 const Container: React.FC = ({ children }) => {
   return (
-    <div>
+    <>
       <Header />
       {children}
       <Footer />
-    </div>
+    </>
   )
 }
 

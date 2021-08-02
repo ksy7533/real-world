@@ -1,6 +1,6 @@
 import React from 'react'
 import SideBar from '@/components/home/SideBar'
-import Pagination from '@/components/common/Pagination'
+import Pagination from '@/components/atoms/Pagination'
 import useSWR from 'swr'
 import axios, { AxiosResponse } from 'axios'
 
