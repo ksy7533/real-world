@@ -1,20 +1,30 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import SideBar from '@/components/home/SideBar'
+import ArticleList from '@/components/home/ArticleList'
 import Pagination from '@/components/atoms/Pagination'
-import useSWR from 'swr'
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
+import {
+  useArticleListDispatch,
+  useArticleListState,
+} from '@/contexts/ArticleListContext'
+
+const fetcher = async (url: string) =>
+  await axios.get(url).then((res) => res.data)
 
 const Home: React.FC = () => {
-  const fetcher = async (url: string): Promise<AxiosResponse> =>
-    await axios.get(url).then((res) => res.data)
+  const articleListState = useArticleListState()
+  const dispatch = useArticleListDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const { data, error } = useSWR(
-    'https://conduit.productionready.io/api/articles?offset=0&limit=20',
-    fetcher
-  )
-
-  console.log(data)
-  console.log(error)
+  useEffect(() => {
+    setIsLoading(true)
+    fetcher(
+      'https://conduit.productionready.io/api/articles?offset=0&limit=10'
+    ).then((result) => {
+      dispatch({ type: 'SET_ARTICLE_LIST', articleList: result.articles })
+      setIsLoading(false)
+    })
+  }, [dispatch])
 
   return (
     <div className='page-main'>
@@ -36,43 +46,10 @@ const Home: React.FC = () => {
 
           <p className='article-list-total'>1 / 3</p>
 
-          <ul className='article-list'>
-            <li className='article-item'>
-              <p className='title'>
-                <a href='/article/foobar'>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                </a>
-              </p>
-              <p className='desc'>
-                Accusamus aspernatur placeat rem reprehenderit eum ab laudantium
-                asperiores est officia ducimus quasi ipsam deserunt cum velit
-                esse, voluptatem doloremque maiores vero.
-              </p>
-              <div className='info'>
-                <div className='author-info'>
-                  <a className='link' href='/@dohoons'>
-                    <div className='img'>
-                      <img src='{{base}}/img/profile-dummy.jpg' alt='' />
-                    </div>
-                    <p className='name'>dohoons</p>
-                  </a>
-                  <p className='date'>Sun Dec 02 2018</p>
-                </div>
-                <ul className='tag-list small'>
-                  <li>
-                    <a className='' href='/tag/test'>
-                      test
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <button type='button' className='btn-like'>
-                <i className='fas fa-heart'></i>
-                <span className='txt'>좋아요</span>
-                <span className='count'>1</span>
-              </button>
-            </li>
-          </ul>
+          <ArticleList
+            isLoading={isLoading}
+            list={articleListState.articleList}
+          />
 
           <Pagination />
         </div>
