@@ -1,6 +1,45 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import classnames from 'classnames'
+import { PAGE_LIMIT } from '@/contexts/ArticleListContext'
+import { Link } from 'react-router-dom'
 
-const Pagination: React.FC = () => {
+interface PaginationProps {
+  totalCount: number
+  currentPage: number
+  totalPage: number
+  isLoading: boolean
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+  totalCount,
+  currentPage,
+  totalPage,
+  isLoading,
+}) => {
+  const [pageList, setPageList] = useState<number[]>([])
+
+  useEffect(() => {
+    function range(start: number, end: number): number[] {
+      return Array(end - start + 1)
+        .fill(0)
+        .map((_, index) => start + index)
+    }
+    setPageList(range(1, PAGE_LIMIT))
+  }, [])
+
+  const renderPageNumber = useCallback(() => {
+    return pageList.map((item, index) => (
+      <li className={classnames({ active: item === currentPage })} key={index}>
+        <Link
+          to={`/?currentPage=${item}`}
+          className={classnames({ active: item === currentPage })}
+        >
+          {item}
+        </Link>
+      </li>
+    ))
+  }, [currentPage, pageList])
+
   return (
     <div className='pagination'>
       <ul>
@@ -19,21 +58,7 @@ const Pagination: React.FC = () => {
           </a>
         </li>
 
-        <li className='active'>
-          <a className='active' href='/feed/1' aria-label='Go to page number 1'>
-            1
-          </a>
-        </li>
-        <li className=''>
-          <a className='' href='/feed/2' aria-label='Go to page number 2'>
-            2
-          </a>
-        </li>
-        <li className=''>
-          <a className='' href='/feed/3' aria-label='Go to page number 3'>
-            3
-          </a>
-        </li>
+        {isLoading ? null : renderPageNumber()}
 
         <li className=''>
           <a className='' href='/feed/2' aria-label='Go to next page'>

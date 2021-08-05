@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 import SideBar from '@/components/home/SideBar'
 import ArticleList from '@/components/home/ArticleList'
 import Pagination from '@/components/atoms/Pagination'
@@ -6,25 +7,50 @@ import axios from 'axios'
 import {
   useArticleListDispatch,
   useArticleListState,
+  PAGE_LIMIT,
 } from '@/contexts/ArticleListContext'
 
 const fetcher = async (url: string) =>
   await axios.get(url).then((res) => res.data)
 
 const Home: React.FC = () => {
-  const articleListState = useArticleListState()
+  const history = useHistory()
+  const { articleList, articleListPageInfo } = useArticleListState()
   const dispatch = useArticleListDispatch()
   const [isLoading, setIsLoading] = useState(false)
 
+  const fetchArticleList = useCallback(
+    (currentPage: number) => {
+      setIsLoading(true)
+      fetcher(
+        `https://conduit.productionready.io/api/articles?offset=${
+          (currentPage - 1) * 10
+        }&limit=${PAGE_LIMIT}`
+      ).then((result) => {
+        dispatch({ type: 'SET_ARTICLE_LIST', articleList: result.articles })
+        dispatch({
+          type: 'SET_ARTICLE_LIST_PAGE_INFO',
+          articleListTotalCount: result.articlesCount,
+          currentPage,
+        })
+        setIsLoading(false)
+      })
+    },
+    [dispatch]
+  )
+
+  const search = useLocation().search
+  const currentPage = new URLSearchParams(search).get('currentPage')
+
   useEffect(() => {
-    setIsLoading(true)
-    fetcher(
-      'https://conduit.productionready.io/api/articles?offset=0&limit=10'
-    ).then((result) => {
-      dispatch({ type: 'SET_ARTICLE_LIST', articleList: result.articles })
-      setIsLoading(false)
-    })
-  }, [dispatch])
+    if (currentPage === null) {
+      history.push({
+        pathname: '/',
+        search: '?currentPage=1',
+      })
+    }
+    fetchArticleList(Number(currentPage))
+  }, [history, fetchArticleList, currentPage])
 
   return (
     <div className='page-main'>
@@ -44,14 +70,18 @@ const Home: React.FC = () => {
             </li>
           </ul>
 
-          <p className='article-list-total'>1 / 3</p>
+          <p className='article-list-total'>
+            {articleListPageInfo.currentPage} / {articleListPageInfo.totalPage}
+          </p>
 
-          <ArticleList
+          <ArticleList isLoading={isLoading} list={articleList} />
+
+          <Pagination
+            totalCount={articleListPageInfo.totalCount}
+            currentPage={articleListPageInfo.currentPage}
+            totalPage={articleListPageInfo.totalPage}
             isLoading={isLoading}
-            list={articleListState.articleList}
           />
-
-          <Pagination />
         </div>
 
         <SideBar />

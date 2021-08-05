@@ -27,17 +27,31 @@ export interface ArticleType {
   favoritesCount: number
 }
 
-interface StateType {
-  articleList: ArticleType[]
-  articleListPageInfo: any
+interface ArticleListPageInfo {
+  totalCount: number
+  currentPage: number
+  totalPage: number
 }
 
-type ActionType = { type: 'SET_ARTICLE_LIST'; articleList: ArticleType[] }
+interface StateType {
+  articleList: ArticleType[]
+  articleListPageInfo: ArticleListPageInfo
+}
+
+type ActionType =
+  | { type: 'SET_ARTICLE_LIST'; articleList: ArticleType[] }
+  | {
+      type: 'SET_ARTICLE_LIST_PAGE_INFO'
+      articleListTotalCount: number
+      currentPage: number
+    }
 
 type DispatchType = Dispatch<ActionType>
 
 const ArticleListContext = createContext<StateType | null>(null)
 const ArticleListDispatchContext = createContext<DispatchType | null>(null)
+
+export const PAGE_LIMIT = 10
 
 function reducer(state: StateType, action: ActionType): StateType {
   switch (action.type) {
@@ -46,6 +60,18 @@ function reducer(state: StateType, action: ActionType): StateType {
         ...state,
         articleList: [...action.articleList],
       }
+    case 'SET_ARTICLE_LIST_PAGE_INFO': {
+      const pageInfo = {
+        totalCount: action.articleListTotalCount,
+        currentPage: action.currentPage,
+        totalPage: action.articleListTotalCount / PAGE_LIMIT,
+      }
+      return {
+        ...state,
+        articleListPageInfo: pageInfo,
+      }
+    }
+
     default:
       throw new Error('Unhandled action')
   }
@@ -58,7 +84,11 @@ const ArticleListProvider = ({
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     articleList: [],
-    articleListPageInfo: {},
+    articleListPageInfo: {
+      totalCount: 0,
+      currentPage: 0,
+      totalPage: 0,
+    },
   })
 
   return (
