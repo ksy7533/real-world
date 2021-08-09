@@ -43,13 +43,9 @@ const Home: React.FC = () => {
   const currentPage = new URLSearchParams(search).get('currentPage')
 
   useEffect(() => {
-    if (currentPage === null) {
-      history.push({
-        pathname: '/',
-        search: '?currentPage=1',
-      })
-    }
-    fetchArticleList(Number(currentPage))
+    currentPage === null
+      ? fetchArticleList(1)
+      : fetchArticleList(Number(currentPage))
   }, [history, fetchArticleList, currentPage])
 
   return (

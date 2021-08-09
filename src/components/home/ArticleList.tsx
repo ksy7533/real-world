@@ -22,7 +22,11 @@ const ArticleList: React.FC<ArticleListProps> = ({ list, isLoading }) => {
       ? 'loading...'
       : list.map((article: ArticleType, index: number) => {
           return (
-            <li className='article-item' key={index} data-slug={article.slug}>
+            <li
+              className='article-item'
+              key={article.slug}
+              data-slug={article.slug}
+            >
               <p className='title'>
                 <a href='/article/foobar'>{article.title}</a>
               </p>
