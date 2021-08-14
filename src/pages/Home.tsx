@@ -48,6 +48,15 @@ const Home: React.FC = () => {
       : fetchArticleList(Number(currentPage))
   }, [history, fetchArticleList, currentPage])
 
+  const clickPageNumber = useCallback(
+    (pageNumber) => {
+      history.push({
+        search: `?currentPage=${pageNumber}`,
+      })
+    },
+    [history]
+  )
+
   return (
     <div className='page-main'>
       <div className='top-visual init'>
@@ -75,7 +84,7 @@ const Home: React.FC = () => {
           <Pagination
             totalCount={articleListPageInfo.totalCount}
             currentPage={articleListPageInfo.currentPage}
-            totalPage={articleListPageInfo.totalPage}
+            clickPageNumber={clickPageNumber}
             isLoading={isLoading}
           />
         </div>

@@ -1,80 +1,52 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import classnames from 'classnames'
-import { PAGE_LIMIT } from '@/contexts/ArticleListContext'
-import { Link } from 'react-router-dom'
+import React from 'react'
+import ReactPagination from 'react-js-pagination'
 
 interface PaginationProps {
   totalCount: number
   currentPage: number
-  totalPage: number
   isLoading: boolean
+  clickPageNumber: (pageNumber: number) => void
 }
 
 const Pagination: React.FC<PaginationProps> = ({
   totalCount,
   currentPage,
-  totalPage,
   isLoading,
+  clickPageNumber,
 }) => {
-  const [pageList, setPageList] = useState<number[]>([])
-
-  useEffect(() => {
-    function range(start: number, end: number): number[] {
-      return Array(end - start + 1)
-        .fill(0)
-        .map((_, index) => start + index)
-    }
-    setPageList(range(1, PAGE_LIMIT))
-  }, [])
-
-  const renderPageNumber = useCallback(() => {
-    return pageList.map((item, index) => (
-      <li className={classnames({ active: item === currentPage })} key={index}>
-        <Link
-          to={`/?currentPage=${item}`}
-          className={classnames({ active: item === currentPage })}
-        >
-          {item}
-        </Link>
-      </li>
-    ))
-  }, [currentPage, pageList])
-
   return (
     <div className='pagination'>
-      <ul>
-        <li className=''>
-          <a className='' href='/feed/1' aria-label='Go to first page'>
-            <span className='fas fa-angle-double-left'>
-              <span className='txt'>처음</span>
-            </span>
-          </a>
-        </li>
-        <li className=''>
-          <a className='' href='/feed/0' aria-label='Go to previous page'>
+      {isLoading ? (
+        '로딩중'
+      ) : (
+        <ReactPagination
+          activePage={currentPage}
+          itemsCountPerPage={10}
+          totalItemsCount={totalCount}
+          pageRangeDisplayed={10}
+          onChange={clickPageNumber}
+          prevPageText={
             <span className='fas fa-angle-left'>
               <span className='txt'>이전</span>
             </span>
-          </a>
-        </li>
-
-        {isLoading ? null : renderPageNumber()}
-
-        <li className=''>
-          <a className='' href='/feed/2' aria-label='Go to next page'>
-            <span className='fas fa-angle-right'>
-              <span className='txt'>다음</span>
+          }
+          firstPageText={
+            <span className='fas fa-angle-double-left'>
+              <span className='txt'>처음</span>
             </span>
-          </a>
-        </li>
-        <li className=''>
-          <a className='' href='/feed/3' aria-label='Go to last page'>
+          }
+          lastPageText={
             <span className='fas fa-angle-double-right'>
               <span className='txt'>마지막</span>
             </span>
-          </a>
-        </li>
-      </ul>
+          }
+          nextPageText={
+            <span className='fas fa-angle-right'>
+              <span className='txt'>다음</span>
+            </span>
+          }
+        />
+      )}
     </div>
   )
 }
