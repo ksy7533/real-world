@@ -17,7 +17,7 @@ const routes = [
     exact: false,
   },
   {
-    path: '/article',
+    path: '/article/:slug',
     component: Article,
     exact: true,
   },

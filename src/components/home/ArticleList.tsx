@@ -28,7 +28,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ list, isLoading }) => {
               data-slug={article.slug}
             >
               <p className='title'>
-                <a href='/article/foobar'>{article.title}</a>
+                <a href={`/article/${article.slug}`}>{article.title}</a>
               </p>
               <p className='desc'>{article.body}</p>
               <div className='info'>
