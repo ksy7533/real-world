@@ -12,9 +12,9 @@ export interface routeType {
 
 const routes = [
   {
-    path: '/',
+    path: '/world',
     component: Home,
-    exact: true,
+    exact: false,
   },
   {
     path: '/article',

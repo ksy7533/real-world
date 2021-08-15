@@ -1,60 +1,26 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import React, { useCallback } from 'react'
 import SideBar from '@/components/home/SideBar'
-import ArticleList from '@/components/home/ArticleList'
-import Pagination from '@/components/atoms/Pagination'
-import axios from 'axios'
-import {
-  useArticleListDispatch,
-  useArticleListState,
-  PAGE_LIMIT,
-} from '@/contexts/ArticleListContext'
-
-const fetcher = async (url: string) =>
-  await axios.get(url).then((res) => res.data)
+import Articles from '@/components/home/Articles'
+import Feed from '@/components/home/Feed'
+import { Route, Switch, useHistory } from 'react-router-dom'
+import classnames from 'classnames'
 
 const Home: React.FC = () => {
   const history = useHistory()
-  const { articleList, articleListPageInfo } = useArticleListState()
-  const dispatch = useArticleListDispatch()
-  const [isLoading, setIsLoading] = useState(false)
 
-  const fetchArticleList = useCallback(
-    (currentPage: number) => {
-      setIsLoading(true)
-      fetcher(
-        `https://conduit.productionready.io/api/articles?offset=${
-          (currentPage - 1) * 10
-        }&limit=${PAGE_LIMIT}`
-      ).then((result) => {
-        dispatch({ type: 'SET_ARTICLE_LIST', articleList: result.articles })
-        dispatch({
-          type: 'SET_ARTICLE_LIST_PAGE_INFO',
-          articleListTotalCount: result.articlesCount,
-          currentPage,
-        })
-        setIsLoading(false)
-      })
-    },
-    [dispatch]
-  )
-
-  const search = useLocation().search
-  const currentPage = new URLSearchParams(search).get('currentPage')
-
-  useEffect(() => {
-    currentPage === null
-      ? fetchArticleList(1)
-      : fetchArticleList(Number(currentPage))
-  }, [history, fetchArticleList, currentPage])
-
-  const clickPageNumber = useCallback(
-    (pageNumber) => {
-      history.push({
-        search: `?currentPage=${pageNumber}`,
-      })
+  const isSelectedTabMenu = useCallback(
+    (currentPath: string): boolean => {
+      return history.location.pathname === currentPath
     },
     [history]
+  )
+
+  const handleClickTabMenu = useCallback(
+    (currentPath): void => {
+      if (isSelectedTabMenu(currentPath)) return
+      history.push(currentPath)
+    },
+    [history, isSelectedTabMenu]
   )
 
   return (
@@ -67,26 +33,42 @@ const Home: React.FC = () => {
       <div className='container'>
         <div className='body'>
           <ul className='nav-tab'>
-            <li className='selected'>
-              <a href='/feed'>내 담벼락</a>
+            <li
+              className={classnames({
+                selected: isSelectedTabMenu('/world/feed'),
+              })}
+            >
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleClickTabMenu('/world/feed')
+                }}
+              >
+                내 담벼락
+              </a>
             </li>
-            <li className=''>
-              <a href='/articles'>전체 글목록</a>
+            <li
+              className={classnames({
+                selected: isSelectedTabMenu('/world/articles'),
+              })}
+            >
+              <a
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleClickTabMenu('/world/articles')
+                }}
+              >
+                전체 글목록
+              </a>
             </li>
           </ul>
 
-          <p className='article-list-total'>
-            {articleListPageInfo.currentPage} / {articleListPageInfo.totalPage}
-          </p>
-
-          <ArticleList isLoading={isLoading} list={articleList} />
-
-          <Pagination
-            totalCount={articleListPageInfo.totalCount}
-            currentPage={articleListPageInfo.currentPage}
-            clickPageNumber={clickPageNumber}
-            isLoading={isLoading}
-          />
+          <Switch>
+            <Route path={`/world/feed`} exact component={Feed} />
+            <Route path={`/world/articles`} exact component={Articles} />
+          </Switch>
         </div>
 
         <SideBar />
