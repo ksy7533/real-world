@@ -7,7 +7,7 @@ const Header: React.FC = () => {
     return isLogin ? (
       <ul className='nav'>
         <li>
-          <a className='home' href='/'>
+          <a className='home' href='/world'>
             Home
           </a>
         </li>
@@ -21,7 +21,7 @@ const Header: React.FC = () => {
     ) : (
       <ul className='nav'>
         <li>
-          <a className='home' href='/'>
+          <a className='home' href='/world'>
             Home
           </a>
         </li>
@@ -46,7 +46,7 @@ const Header: React.FC = () => {
     <header className='common-header'>
       <div className='wrap'>
         <h1 className='logo'>
-          <a href='/'>
+          <a href='/world'>
             <i className='fas fa-globe'></i> World
           </a>
         </h1>
