@@ -16,3 +16,19 @@ export const getArticleList = async ({
     }&limit=${pageLimit}`
   )
 }
+
+export const getArticle = async ({ slug }: { slug: string }): Promise<any> => {
+  return await fetcher(
+    `https://conduit.productionready.io/api/articles/${slug}`
+  )
+}
+
+export const getArticleCommentList = async ({
+  slug,
+}: {
+  slug: string
+}): Promise<any> => {
+  return await fetcher(
+    `https://conduit.productionready.io/api/articles/${slug}/comments`
+  )
+}

@@ -1,65 +1,18 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-
-import axios from 'axios'
-
-interface AuthorData {
-  username: string
-  bio: any
-  image: string
-  following: boolean
-}
-
-interface ArticleData {
-  author: AuthorData
-  body: string
-  createdAt: string
-  description: string
-  favorited: boolean
-  favoritesCount: number
-  slug: string
-  tagList: string[]
-  title: string
-}
-
-interface CommentData {
-  author: AuthorData
-  body: string
-  createdAt: string
-  id: number
-  updatedAt: string
-}
-
-const fetcher = async (url: string) =>
-  await axios.get(url).then((res) => res.data)
+import useArticleAndCommentListFetcher, {
+  CommentData,
+} from '@/hooks/useArticleAndCommentListFetcher'
 
 const Article: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false)
   const { slug }: { slug: string } = useParams()
-
-  const [articleData, setArticleData] = useState<ArticleData>()
-  const [commentListData, setCommentListData] = useState<CommentData[]>([])
-
-  useEffect(() => {
-    setIsLoading(true)
-    Promise.all([
-      fetcher(`https://conduit.productionready.io/api/articles/${slug}`),
-      fetcher(
-        `https://conduit.productionready.io/api/articles/${slug}/comments`
-      ),
-    ]).then((values) => {
-      console.log(values)
-      setArticleData(values[0].article)
-      setCommentListData(values[1].comments)
-      setIsLoading(false)
-    })
-  }, [slug])
+  const { data, isLoading } = useArticleAndCommentListFetcher({ slug })
 
   const renderCommentList = useMemo(() => {
-    if (commentListData.length === 0) {
+    if (data.comments.length === 0) {
       return `등록된 댓글이 없습니다`
     }
-    return commentListData.map((item: CommentData, index: number) => {
+    return data.comments.map((item: CommentData, index: number) => {
       return (
         <li key={`${item.id}-${index}`}>
           <a className='img' href={`/@${item.author.username}`}>
@@ -81,10 +34,10 @@ const Article: React.FC = () => {
         </li>
       )
     })
-  }, [commentListData])
+  }, [data.comments])
 
   const renderTagList = useMemo(() => {
-    return articleData?.tagList.map((item, index) => {
+    return data.article?.tagList?.map((item: string, index: number) => {
       return (
         <li key={`${item}-${index}`}>
           <a className='' href={`/tag/${item}`}>
@@ -93,35 +46,35 @@ const Article: React.FC = () => {
         </li>
       )
     })
-  }, [articleData])
+  }, [data.article])
 
   return isLoading ? null : (
     <div className='page-article'>
       <div className='article-header'>
         <div className='wrap'>
-          <h2 className='subject'>{articleData?.title}</h2>
-          <p className='desc'>{articleData?.description}</p>
+          <h2 className='subject'>{data.article?.title}</h2>
+          <p className='desc'>{data.article?.description}</p>
           <div className='info'>
             <div className='author-info'>
-              <a className='link' href={`/@${articleData?.author.username}`}>
+              <a className='link' href={`/@${data.article?.author?.username}`}>
                 <div className='img'>
-                  <img src={articleData?.author.image} alt='' />
+                  <img src={data.article?.author?.image} alt='' />
                 </div>
-                <p className='name'>{articleData?.author.username}</p>
+                <p className='name'>{data.article?.author?.username}</p>
               </a>
-              <p className='date'>{articleData?.createdAt}</p>
+              <p className='date'>{data.article?.createdAt}</p>
             </div>
             <button type='button' className='btn-like'>
               <i className='fas fa-heart'></i>
               <span className='txt'>좋아요</span>
-              <span className='count'>{articleData?.favoritesCount}</span>
+              <span className='count'>{data.article?.favoritesCount}</span>
             </button>
           </div>
         </div>
       </div>
       <div className='container'>
         <div className='article-body'>
-          <div className='body'>{articleData?.body}</div>
+          <div className='body'>{data.article?.body}</div>
           <ul className='tag-list'>{renderTagList}</ul>
         </div>
 

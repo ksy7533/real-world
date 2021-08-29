@@ -49,7 +49,7 @@ const useArticleListFetcher = ({
 
   useEffect(() => {
     if (!data) return
-    dispatch({ type: 'SET_ARTICLE_LIST', articleList: data?.articles })
+    dispatch({ type: 'SET_ARTICLE_LIST', articleList: data.articles })
     dispatch({
       type: 'SET_ARTICLE_LIST_PAGE_INFO',
       articleListTotalCount: data.articlesCount,
